@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Layer Protocol Visualizer</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-title-group">
+        <h1 class="header-title">Application Layer Protocol Visualizer</h1>
+        <span class="header-badge">Dual-Panel Dashboard</span>
+      </div>
+      <p class="header-subtitle">Interactive visualization of DNS, HTTP, SMTP, and HLS Streaming exchanges</p>
+    </div>
+
+    <div class="header-meta">
+      <span class="sim-disclaimer-pill" title="Every message accurately models protocol state machines without unneeded live network operations.">
+        Simulated Protocol Execution (RFC-Faithful)
+      </span>
+      <div id="backendStatusPill" class="backend-pill backend-standalone">
+        <span class="dot">○</span> Simulator Engine: Standalone JS
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dual-Panel Dashboard -->
+  <main class="dashboard-container">
+
+    <!-- ====================================================================
+         LEFT PANEL: Activity Panel (38% Desktop Width)
+         ==================================================================== -->
+    <section class="panel activity-panel" id="activityPanel" aria-label="Activity Panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <span>⚡</span>
+          <h2>Activity Panel</h2>
+        </div>
+        <div id="activityStatusBadge" class="status-pill status-ready">
+          <span class="status-dot">●</span> READY
+        </div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- Activity Selection Tabs -->
+        <nav class="activity-tabs-container" role="tablist" aria-label="Protocol Activities">
+          <button class="activity-tab active" data-activity="browsing" role="tab" aria-selected="true" aria-controls="view-browsing">
+            <span>🌐</span> Browsing
+          </button>
+          <button class="activity-tab" data-activity="mail" role="tab" aria-selected="false" aria-controls="view-mail">
+            <span>✉</span> Mail
+          </button>
+          <button class="activity-tab" data-activity="streaming" role="tab" aria-selected="false" aria-controls="view-streaming">
+            <span>▶</span> Streaming
+          </button>
+         
+        </nav>
+
+        <!-- Validation Error Banner -->
+        <div class="alert-error" id="activityErrorBox" role="alert"></div>
+
+        <!-- ACTIVITY 1: BROWSING VIEW -->
+        <div class="activity-view active-view" id="view-browsing" role="tabpanel">
+          <div class="form-group">
+            <label class="form-label" for="inputBrowseUrl">Target Web URL</label>
+            <input type="url" id="inputBrowseUrl" class="form-input" value="https://example.com" placeholder="https://example.com" spellcheck="false">
+          </div>
+
+          <div class="presets-container">
+            <span class="presets-label">Quick Presets:</span>
+            <div class="presets-list" id="browsePresetsList"></div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" id="btnBrowseVisit">
+              <span>🌐</span> Visit URL
+            </button>
+            <button class="btn-secondary" id="btnBrowseReset">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTIVITY 2: MAIL VIEW -->
+        <div class="activity-view" id="view-mail" role="tabpanel">
+          <div class="form-group">
+            <label class="form-label" for="inputMailTo">Recipient (To)</label>
+            <input type="email" id="inputMailTo" class="form-input" value="student@example.com" placeholder="user@domain.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputMailSubject">Subject</label>
+            <input type="text" id="inputMailSubject" class="form-input" value="Computer Networks Demo" placeholder="Email subject">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputMailBody">Message Body</label>
+            <textarea id="inputMailBody" class="form-textarea" placeholder="Type email message body here...">Testing SMTP protocol visualization.</textarea>
+          </div>
+
+          <div class="presets-container">
+            <span class="presets-label">Quick Presets:</span>
+            <div class="presets-list" id="mailPresetsList"></div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" id="btnMailSend">
+              <span>✉</span> Send Mail
+            </button>
+            <button class="btn-secondary" id="btnMailReset">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTIVITY 3: STREAMING VIEW -->
+        <div class="activity-view" id="view-streaming" role="tabpanel">
+          <div class="form-group">
+            <label class="form-label" for="selectStreamUrl">Stream Source (HLS Playlist)</label>
+            <select id="selectStreamUrl" class="form-select">
+              <option value="https://video.networklab.org/live/lecture.m3u8">Campus Lecture: Transport & Application Layers (Live)</option>
+              <option value="https://video.networklab.org/vod/networks_hd.m3u8">VoD: RFC Protocol Breakdown & Architecture (HD)</option>
+              <option value="https://video.networklab.org/cdn/sports_stream.m3u8">CDN Edge Relay: High-Framerate Feed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="selectStreamQuality">Quality / Target Bitrate</label>
+            <select id="selectStreamQuality" class="form-select">
+              <option value="Auto">Auto (Adaptive Bitrate ABR)</option>
+              <option value="360p">360p (~800 Kbps - Low Latency Mobile)</option>
+              <option value="480p">480p (~1.4 Mbps - Standard Definition)</option>
+              <option value="720p" selected>720p (~2.5 Mbps - High Definition)</option>
+              <option value="1080p">1080p (~5.0 Mbps - Full HD Stream)</option>
+            </select>
+          </div>
+
+          <!-- Simulated Video Player Screen -->
+          <div class="simulated-player-card">
+            <div class="player-screen" id="simulatedPlayerScreen">
+              <div id="playerScreenState">
+                <span class="idle-text">▶ Press Play to stream segments</span>
+              </div>
+            </div>
+
+            <!-- Stream Chunk Metadata -->
+            <div class="stream-meta-grid">
+              <div class="stream-meta-item">
+                <span class="stream-meta-label">Resolution</span>
+                <span class="stream-meta-val" id="metaStreamRes">1280x720</span>
+              </div>
+              <div class="stream-meta-item">
+                <span class="stream-meta-label">Target Rate</span>
+                <span class="stream-meta-val" id="metaStreamRate">~2.5 Mbps</span>
+              </div>
+              <div class="stream-meta-item">
+                <span class="stream-meta-label">Chunk Slice</span>
+                <span class="stream-meta-val" id="metaStreamChunk">~1.88 MB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" id="btnStreamPlay">
+              <span>▶</span> Play Stream
+            </button>
+            <button class="btn-secondary" id="btnStreamPause">
+              Pause
+            </button>
+            <button class="btn-secondary" id="btnStreamReset">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        
+        <!-- Real-Time Activity Log -->
+        <div class="activity-log-container">
+          <div class="activity-log-header">
+            <span class="activity-log-title">Activity Event Log</span>
+            <button class="btn-clear-log" id="btnClearLog" title="Clear log entries">Clear</button>
+          </div>
+          <div class="activity-log-list" id="activityLogList" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RIGHT PANEL: Protocol Visualization Panel (62% Desktop Width)
+         ==================================================================== -->
+    <section class="panel protocol-panel" id="protocolPanel" aria-label="Protocol Visualization Panel">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <span>📡</span>
+          <h2>Protocol Visualization</h2>
+        </div>
+        <div id="protocolStatusBadge" class="status-pill status-ready">
+          <span class="status-dot">●</span> READY
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <div class="layer-switcher" role="tablist" aria-label="Protocol layer">
+          <button id="btnApplicationLayer" class="layer-btn active" type="button">Application Layer</button>
+          <button id="btnTransportLayer" class="layer-btn" type="button">Transport Layer</button>
+        </div>
+        <div id="tcpStateIndicator" class="tcp-state-indicator" hidden></div>
+
+        <!-- Protocol Title & Subtitle Banner -->
+        <div class="protocol-title-banner">
+          <div>
+            <h3 class="protocol-title-text" id="currentProtocolTitle">Browsing: DNS → HTTP/1.1</h3>
+            <p class="protocol-desc-text" id="currentProtocolDesc">Resolution of host via DNS query/response, followed by HTTP/1.1 resource fetching.</p>
+          </div>
+        </div>
+
+        <!-- Communicating Endpoints Lifelines -->
+        <div class="endpoints-container" id="endpointLifelines">
+          <!-- Dynamically populated by ProtocolPlaybackEngine -->
+        </div>
+
+        <!-- Playback Navigation Toolbar -->
+        <div class="playback-toolbar">
+          <div class="playback-btn-group">
+            <button class="ctrl-btn" id="btnReplay" title="Replay from Step 1 (Shortcut: R)">
+              <span>↻</span> Replay
+            </button>
+            <button class="ctrl-btn" id="btnPrev" title="Previous Step (Shortcut: Left Arrow)" disabled>
+              <span>←</span> Prev
+            </button>
+            <button class="ctrl-btn ctrl-btn-play" id="btnPlayPause" title="Play or Pause (Shortcut: Space)">
+              ▶ Play
+            </button>
+            <button class="ctrl-btn" id="btnNext" title="Next Step (Shortcut: Right Arrow)">
+              Next <span>→</span>
+            </button>
+          </div>
+
+          <div class="playback-info-group">
+            <div class="speed-select-wrap">
+              <label for="selectSpeed">Speed:</label>
+              <select id="selectSpeed" class="form-select-sm">
+                <option value="0.5">0.5x</option>
+                <option value="1.0" selected>1.0x</option>
+                <option value="2.0">2.0x</option>
+              </select>
+            </div>
+            <div class="step-counter-badge" id="stepCounter">Step 1 / 6</div>
+          </div>
+        </div>
+
+        <!-- Clickable Timeline Scrubber -->
+        <div class="timeline-scrubber-container" id="timelineScrubber" aria-label="Timeline Step Scrubber">
+          <!-- Dynamically populated by ProtocolPlaybackEngine -->
+        </div>
+
+        <!-- Progressive Message Sequence Ladder -->
+        <div class="sequence-ladder-container" id="sequenceLadder" aria-label="Progressive Message Ladder">
+          <!-- Dynamically populated with step cards -->
+        </div>
+
+        <!-- Deep Message Inspector -->
+        <div id="messageInspector" aria-label="Protocol Message Inspector">
+          <!-- Dynamically populated with current step breakdown -->
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>Computer Networks Laboratory Project</strong> | Application & Transport Layer Dual-Panel Simulator
+    </div>
+    <div class="footer-links">
+      <span>DNS (RFC 1035)</span>
+      <span>HTTP/1.1 (RFC 7230/7231)</span>
+      <span>SMTP (RFC 5321)</span>
+      <span>HLS Streaming (RFC 8216)</span>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="/static/protocol_data.js"></script>
+  <script src="/static/transport_data.js"></script>
+  <script src="/static/playback.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
